@@ -1,99 +1,167 @@
-import React from "react";
-import SplitScreen from "../../../Components/splitScreen";
+import { useState, Dispatch, useEffect } from 'react';
+import { connect, ConnectedProps, useSelector } from 'react-redux';
+import { compose } from 'redux';
+import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { register, success } from '../actions';
+import Carousel from "../../../Components/Carousel";
+import Input from "../../../Components/Input";
+import CustomButton from "../../../Components/Button";
+import { UserType } from '../../../global-types';
+import { makeSelectLoading, makeSelectFail, makeSelectSuccess } from '../selectors';
+import Spinner from '../../../Components/Spinner';
 
-const SignUpView = () => {
+const SignUp: React.FC<SignUpProps> = ({ handleRegister, handleSuccess }) => {
+  let navigate = useNavigate();
+  const [user, setUser] = useState<UserType>({ name: "", username: "", password: "" });
+  const [isSubmited, setIsSubmited] = useState<boolean>(false);
+  const regExpPassword = new RegExp(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/
+  );
+
+  const onChange = (e: React.FormEvent<HTMLInputElement>) => {
+    const userData = { ...user, [e.currentTarget.name]: e.currentTarget.value }
+    setUser(userData);
+  }
+
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setIsSubmited(true);
+    if (user.name && user.name.length > 4 && user.username && user.username.length > 5 && regExpPassword.test(user.password)) {
+      handleRegister(user)
+    }
+  }
+  const success = useSelector(makeSelectSuccess())
+  const fail = useSelector(makeSelectFail())
+
+  useEffect(() => {
+    if (success) {
+      setTimeout(() => {
+        navigate("/login", { replace: true });
+        handleSuccess()
+      }, 2000)
+    }
+  })
+
+
+
   return (
-    <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <img
-            className="mx-auto h-12 w-auto"
-            src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
-            alt="Workflow"
-          />
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-              start your 14-day free trial
-            </a>
-          </p>
+    <>
+      <div className="h-screen grid grid-cols-1 lg:grid-cols-2">
+        <div className="mx-auto w-11/12">
+          <br></br><br></br><br></br><br></br>
+          <div className="">
+            <div>
+              <img
+                className="mx-auto h-12 w-auto"
+                src="https://tailwindui.com/img/logos/workflow-mark-blue-600.svg"
+                alt="Workflow"
+              />
+              <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Create your account</h2>
+              <p className="mt-2 text-center text-sm text-gray-600 mb-8">
+                Or if you already have an account,{' '}
+                <Link to="/login" className="font-medium text-azul1 hover:text-azul2">login here</Link>
+              </p>
+            </div>
+            <div className='text-errorColor text-sm flex justify-center'>
+              {fail &&
+                <div>{fail}</div>}
+            </div>
+            <div className='text-verde3 text-sm flex justify-center'>
+              {success &&
+                <div>{success}</div>}
+            </div>
+            <form className="space-y-6">
+              <div className="rounded-md shadow-sm space-y-2">
+                <div className="">
+                  <label htmlFor="name" className="sr-only"> Name </label>
+                  <Input name="name" type="text" className="focus:ring-azul1 focus:border-azul2 
+                  focus:z-10 sm:text-sm rounded-lg max-w-md m-auto"
+                    placeholder="Name" onChange={onChange}
+                  />
+                  <div className='text-errorColor text-sm text-center'>
+                    {isSubmited && user.name && user.name.length <= 4 &&
+                      'Name must have at least 5 characters'
+                    }
+                    {isSubmited && user.name === '' &&
+                      'This input is required'
+                    }
+                  </div>
+                </div>
+
+                <div className="">
+                  <label htmlFor="username" className="sr-only">Username</label>
+                  <Input
+                    name="username"
+                    type="text"
+                    className="focus:ring-azul1 focus:border-azul2 focus:z-10 sm:text-sm rounded-lg max-w-md m-auto"
+                    placeholder="Username"
+                    onChange={onChange}
+                  />
+                  <div className='text-errorColor text-sm text-center'>
+                    {isSubmited && user.username && user.username.length <= 5 &&
+                      'Username must have at least 6 characters'
+                    }
+                    {isSubmited && user.username === '' &&
+                      'This input is required'
+                    }
+                  </div>
+
+                </div>
+                <div>
+                  <label htmlFor="password" className="sr-only">
+                    Password
+                  </label>
+                  <Input name="password" type="password" autoComplete="current-password"
+                    placeholder="Password" className="rounded-lg max-w-md m-auto" onChange={onChange}
+                  />
+                  <div className='text-errorColor text-sm text-center'>
+                    {isSubmited && user.password && !regExpPassword.test(user.password) &&
+                      'Password must contain at least 8 characters, including minimum of 1 lower case letter [a-z] and. a minimum of 1 upper case letter [A-Z] and. a minimum of 1 numeric character [0-9] and minimun 1 special character'
+                    }
+                    {isSubmited && user.password === '' &&
+                      'This input is required'
+                    }
+                  </div>
+                </div>
+              </div>
+              <br></br>
+              <div className="flex justify-center">
+                <CustomButton type="submit" onClick={(e) => handleSubmit(e)}
+                  className="text-gray-50 bg-azul4 hover:bg-verde1 max-w-sm 
+                focus:outline-none focus:ring-2 focus:ring-offset-2"
+                >
+                  <span className="absolute left-0 inset-y-0  pl-3">
+                  </span>
+                  Sign up
+                </CustomButton>
+
+
+              </div>
+
+
+            </form>
+          </div>
         </div>
-        <form className="mt-8 space-y-6" action="#" method="POST">
-          <input type="hidden" name="remember" defaultValue="true" />
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
-            </div>
-          </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                Forgot your password?
-              </a>
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-              </span>
-              Sign in
-            </button>
-          </div>
-        </form>
+        <div className='my-auto w-full hidden lg:block'>
+          <Carousel />
+        </div>
       </div>
-    </div>
+      {useSelector(makeSelectLoading()) && <Spinner />}
+    </>
   );
 }
 
-const SignUp = () => {
-  return (
-    <div className="w-full">
-      <SplitScreen first={false} child={<SignUpView />} />
-    </div>
-  );
-}
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+  return {
+    dispatch,
+    handleRegister: (userData: UserType) => dispatch(register(userData)),
+    handleSuccess: () => dispatch(success('')),
+  };
+};
 
-export default SignUp;
+const connector = connect(null, mapDispatchToProps);
+
+type SignUpProps = ConnectedProps<typeof connector>;
+
+export default compose(connector)(SignUp)

@@ -1,11 +1,9 @@
 import { combineReducers } from 'redux';
-import logInReducer from "../Containers/User/LogIn"
-import SignUpReducer from "../Containers/User/SignUp"
+import userReducer from "../Containers/User/reducer"
 import mapReducer from "../Containers/Map"
 
 const rootReducer = combineReducers({
-    logInReducer,
-    SignUpReducer,
+    userReducer,
     mapReducer,
 });
 export default rootReducer;
