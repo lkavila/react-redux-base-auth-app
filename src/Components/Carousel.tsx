@@ -36,7 +36,7 @@ const Carousel = () => {
   const startSlider = () => {
     setInterval(() => {
       idkNotWorkingWithClick();
-    }, 6000);
+    }, 10000);
   };
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const Carousel = () => {
 
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="w-full h-min flex items-center justify-center">
       <div className="w-full relative select-none h-fit">
         <div className="aspect-w-15 aspect-h-14">
           <img src={featuredImages[currentIndex]} alt="" className="rounded-md" />
@@ -61,31 +61,5 @@ const Carousel = () => {
   )
 };
 
-const SplitScreen = (props: { first: Boolean, child: React.ReactNode }) => {
 
-  if (props.first) {
-    return (
-      <div className="grid grid-cols-2 place-items-center">
-        <div className="w-full h-screen">
-          {props.child}
-        </div>
-        <div className="w-full h-min">
-          <Carousel />
-        </div>
-      </div>
-    );
-  } else {
-    return (
-      <div className="grid grid-cols-2 place-items-center">
-        <div className="w-full h-min">
-          <Carousel />
-        </div>
-        <div className="w-full h-screen">
-          {props.child}
-        </div>
-      </div>
-    );
-  }
-}
-
-export default SplitScreen
+export default Carousel;
