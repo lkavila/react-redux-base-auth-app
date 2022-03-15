@@ -1,20 +1,23 @@
 import { useState, Dispatch, useEffect } from 'react';
-import { connect, ConnectedProps, useSelector } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { compose } from 'redux';
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { createStructuredSelector } from 'reselect';
 import { register, success } from '../actions';
+import { makeSelectLoading, makeSelectRegisterFail, makeSelectSuccess } from '../selectors';
 import Carousel from "../../../Components/Carousel";
 import Input from "../../../Components/Input";
 import CustomButton from "../../../Components/Button";
 import { UserType } from '../../../global-types';
-import { makeSelectLoading, makeSelectFail, makeSelectSuccess } from '../selectors';
 import Spinner from '../../../Components/Spinner';
 
-const SignUp: React.FC<SignUpProps> = ({ handleRegister, handleSuccess }) => {
+
+const SignUp: React.FC<SignUpProps> = ({ loading, registerFail, success, handleRegister, handleSuccess }) => {
   let navigate = useNavigate();
   const [user, setUser] = useState<UserType>({ name: "", username: "", password: "" });
   const [isSubmited, setIsSubmited] = useState<boolean>(false);
   const regExpPassword = new RegExp(
+    // eslint-disable-next-line
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/
   );
 
@@ -30,15 +33,13 @@ const SignUp: React.FC<SignUpProps> = ({ handleRegister, handleSuccess }) => {
       handleRegister(user)
     }
   }
-  const success = useSelector(makeSelectSuccess())
-  const fail = useSelector(makeSelectFail())
 
   useEffect(() => {
     if (success) {
       setTimeout(() => {
-        navigate("/login", { replace: true });
+        navigate("/auth/login", { replace: true });
         handleSuccess()
-      }, 2000)
+      }, 1000)
     }
   })
 
@@ -47,6 +48,9 @@ const SignUp: React.FC<SignUpProps> = ({ handleRegister, handleSuccess }) => {
   return (
     <>
       <div className="h-screen grid grid-cols-1 lg:grid-cols-2">
+        <div className='my-auto w-full hidden lg:block'>
+          <Carousel />
+        </div>
         <div className="mx-auto w-11/12">
           <br></br><br></br><br></br><br></br>
           <div className="">
@@ -59,12 +63,12 @@ const SignUp: React.FC<SignUpProps> = ({ handleRegister, handleSuccess }) => {
               <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Create your account</h2>
               <p className="mt-2 text-center text-sm text-gray-600 mb-8">
                 Or if you already have an account,{' '}
-                <Link to="/login" className="font-medium text-azul1 hover:text-azul2">login here</Link>
+                <Link to="/auth/login" className="font-medium text-azul1 hover:text-azul2">login here</Link>
               </p>
             </div>
             <div className='text-errorColor text-sm flex justify-center'>
-              {fail &&
-                <div>{fail}</div>}
+              {registerFail &&
+                <div>{registerFail}</div>}
             </div>
             <div className='text-verde3 text-sm flex justify-center'>
               {success &&
@@ -142,12 +146,8 @@ const SignUp: React.FC<SignUpProps> = ({ handleRegister, handleSuccess }) => {
             </form>
           </div>
         </div>
-
-        <div className='my-auto w-full hidden lg:block'>
-          <Carousel />
-        </div>
       </div>
-      {useSelector(makeSelectLoading()) && <Spinner />}
+      {loading && <Spinner />}
     </>
   );
 }
@@ -160,7 +160,14 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   };
 };
 
-const connector = connect(null, mapDispatchToProps);
+const mapStateToProps = createStructuredSelector({
+  loading: makeSelectLoading(),
+  registerFail: makeSelectRegisterFail(),
+  success: makeSelectSuccess()
+})
+
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
 
 type SignUpProps = ConnectedProps<typeof connector>;
 

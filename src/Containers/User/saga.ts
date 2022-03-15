@@ -1,7 +1,7 @@
 import { takeLatest, put, call } from "redux-saga/effects";
 import userActionsTypes from "./constants";
 import axios from "axios";
-import { login, loading, fail, success } from "./actions"
+import { loginSuccess, loading, registerFail, loginFail, success } from "./actions"
 
 
 const URL_API = process.env.REACT_APP_URL_API;
@@ -24,7 +24,7 @@ function* SignUpSaga(signUpAction: any): any {
     yield put(success("User created successfully"));
   } else {
     console.log(error.response.data)
-    yield put(fail(error.response.data.error));
+    yield put(registerFail(error.response.data.message));
   }
 
   yield put(loading(false));
@@ -32,19 +32,21 @@ function* SignUpSaga(signUpAction: any): any {
 
 const postLogin = (body: object) => {
   return axios
-    .post(URL_API + '/login', { ...body })
+    .post(URL_API + 'users/login', { ...body })
     .then(response => ({ response }))
     .catch(error => ({ error }));
 };
 
-function* loginSaga(userData: {}): any {
+function* loginSaga(loginAction: any): any {
   yield put(loading(true));
 
-  const { response, error } = yield call(postLogin, userData);
+  const { response, error } = yield call(postLogin, loginAction.userData);
   if (response) {
-    console.log(response)
-    yield put(login(response.data));
-  } else yield put(fail(error));
+    yield put(loginSuccess(response.data.data));
+    yield put(success(response.data.data.username));
+  } else if (error.response) {
+    yield put(loginFail(error.response.data.message));
+  }
 
   yield put(loading(false));
 }
