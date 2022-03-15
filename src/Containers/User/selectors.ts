@@ -1,5 +1,6 @@
 import { createSelector } from 'reselect';
 import { initialState } from './reducer';
+import { UserType } from '../../global-types';
 
 
 const selectUserDomain = (state: { userReducer: any; }) => state.userReducer || initialState;
@@ -7,7 +8,7 @@ const selectUserDomain = (state: { userReducer: any; }) => state.userReducer || 
 const makeSelectUser = () =>
   createSelector(
     selectUserDomain,
-    (substate: { user: object; }) => substate.user
+    (substate: { user: UserType; }) => substate.user
   );
 
 const makeSelectLoading = () =>
@@ -28,15 +29,22 @@ const makeSelectSuccess = () =>
     (substate: { success: string; }) => substate.success
   );
 
-const makeSelectFail = () =>
+const makeSelectLoginFail = () =>
   createSelector(
     selectUserDomain,
-    (substate: { fail: string; }) => substate.fail
+    (substate: { loginFail: string; }) => substate.loginFail
+  );
+
+const makeSelectRegisterFail = () =>
+  createSelector(
+    selectUserDomain,
+    (substate: { registerFail: string; }) => substate.registerFail
   );
 export {
   makeSelectUser,
   makeSelectLoading,
   makeSelectError,
-  makeSelectFail,
+  makeSelectLoginFail,
+  makeSelectRegisterFail,
   makeSelectSuccess
 };

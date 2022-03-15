@@ -5,7 +5,8 @@ export const initialState = {
   user: {},
   error: '',
   loading: false,
-  fail: '',
+  loginFail: '',
+  registerFail: '',
   success: '',
 }
 
@@ -17,8 +18,8 @@ const userReducer = (state = initialState, action: any) =>
 
       // Do something here based on the different types of actions
 
-      case userActionsTypes.LOGIN:
-        draft.user = action.payload.data;
+      case userActionsTypes.LOGIN_SUCCESS:
+        draft.user = action.payload;
         break;
 
       case userActionsTypes.CHANGE:
@@ -34,12 +35,17 @@ const userReducer = (state = initialState, action: any) =>
         break;
 
       case userActionsTypes.SUCCESS:
-        draft.fail = '';
+        draft.loginFail = '';
+        draft.registerFail = '';
         draft.success = action.payload;
         break;
 
-      case userActionsTypes.FAIL:
-        draft.fail = action.payload;
+      case userActionsTypes.REGISTER_FAIL:
+        draft.registerFail = action.payload;
+        draft.success = '';
+        break;
+      case userActionsTypes.LOGIN_FAIL:
+        draft.loginFail = action.payload;
         draft.success = '';
         break;
       default:

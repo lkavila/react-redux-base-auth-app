@@ -15,10 +15,17 @@ export const register = (userData: UserType) => {
   };
 };
 
-export const login = (target: object) => {
+export const login = (userData: UserType) => {
   return {
     type: userActionsTypes.LOGIN,
-    payload: { target }
+    userData
+  };
+};
+
+export const loginSuccess = (userData: UserType) => {
+  return {
+    type: userActionsTypes.LOGIN_SUCCESS,
+    payload: userData
   };
 };
 
@@ -43,9 +50,16 @@ export const success = (target: string) => {
   };
 };
 
-export const fail = (target: string) => {
+export const registerFail = (target: string) => {
   return {
-    type: userActionsTypes.FAIL,
+    type: userActionsTypes.REGISTER_FAIL,
+    payload: target
+  };
+};
+
+export const loginFail = (target: string) => {
+  return {
+    type: userActionsTypes.LOGIN_FAIL,
     payload: target
   };
 };
